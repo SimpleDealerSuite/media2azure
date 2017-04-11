@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
-public static void Run(Stream myBlob, string name, TraceWriter log)
+public static void Run(Stream myBlob, string name, TraceWriter log,  ICollector<VehicleImage> myQueueItem)
 {
     log.Info($"C# Blob trigger function Processed blob\n Name:{name} ");
 
@@ -22,19 +22,20 @@ public static void Run(Stream myBlob, string name, TraceWriter log)
     }
 
     //save to db
+    log.Info("----- Saving to SQL -----");
     using (var context = new InventoryContext()){
         context.VehicleImages.AddRange(NewImages);
         context.SaveChanges();
         log.Info($"----- Vehicles Saved: {NewImages.Count} -----");
     }
 
-    //TODO: Delete when done
-    //loop through to test
-    log.Info("----- New Images -----");
+    //add each to azure storage queue
+    log.Info("----- Saving to Azure Storage Queue -----");
     foreach (VehicleImage vi in NewImages)
-    {        
-        log.Info($"VIN: {vi.VIN}, URL: {vi.SourceURL}, Date: {vi.DateCreated}");
+    {           
+        myQueueItem.Add(vi);        
     }
+    log.Info($"----- Images Queued: {NewImages.Count} -----");
 }
 
 [Table("VehicleImage")]

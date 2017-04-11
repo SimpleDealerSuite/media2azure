@@ -7,6 +7,13 @@
       "direction": "in",
       "path": "clientdata/{name}",
       "connection": "clientdatastorage"
-    }
+    },
+    {
+      "type": "queue",
+      "name": "myQueueItem",
+      "queueName": "imageresizequeue",
+      "connection": "clientdatastorage",
+      "direction": "out"
+    },
   ]
 }
