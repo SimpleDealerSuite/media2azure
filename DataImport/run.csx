@@ -1,4 +1,7 @@
-using System.IO;
+using System;
+using System.Configuration;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 
 public static void Run(Stream myBlob, string name, TraceWriter log)
 {
@@ -17,11 +20,17 @@ public static void Run(Stream myBlob, string name, TraceWriter log)
         }
     }
 
+    //save to db
+    using (InventoryContext context = new InventoryContext()){
+        context.VehicleImages.AddRange(NewImages);
+        context.SaveChanges();
+    }
+
     //loop through to test
     log.Info("----- New Images -----");
     foreach (VehicleImage vi in NewImages)
     {        
-        log.Info($"VIN: {vi.VIN}, URL: {vi.SourceURL}");
+        log.Info($"VIN: {vi.VIN}, URL: {vi.SourceURL}, Date: {vi.DateCreated}");
     }
 }
 
@@ -31,10 +40,23 @@ public class VehicleImage
     {
         this.VIN = vin;
         this.SourceURL = sourceurl;
+        this.DateCreated = DateTime.Now;
+        this.DateModified = DateTime.Now;
     }
-    public string ImageId { get; set; }
+    public int Id { get; set; }
     public string VIN { get; set; }
     public string SourceURL { get; set; }
     public string SizedURL { get; set; }
     public DateTime DateCreated { get; set; }
+    public DateTime DateModified { get; set; }
+}
+
+public class InventoryContext : DbContext
+{
+    public InventoryContext()
+        : base("name=InventoryContext")
+    {
+    }
+
+    public virtual DbSet<VehicleImage> VehicleImages { get; set; }
 }
