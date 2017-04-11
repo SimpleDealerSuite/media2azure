@@ -1,5 +1,6 @@
 using System;
 using System.Configuration;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
@@ -21,11 +22,13 @@ public static void Run(Stream myBlob, string name, TraceWriter log)
     }
 
     //save to db
-    using (InventoryContext context = new InventoryContext()){
+    using (var context = new InventoryContext()){
         context.VehicleImages.AddRange(NewImages);
         context.SaveChanges();
+        log.Info($"----- Vehicles Saved: {NewImages.Count} -----");
     }
 
+    //TODO: Delete when done
     //loop through to test
     log.Info("----- New Images -----");
     foreach (VehicleImage vi in NewImages)
@@ -34,6 +37,7 @@ public static void Run(Stream myBlob, string name, TraceWriter log)
     }
 }
 
+[Table("VehicleImage")]
 public class VehicleImage
 {
     public VehicleImage(string vin, string sourceurl)
@@ -44,8 +48,11 @@ public class VehicleImage
         this.DateModified = DateTime.Now;
     }
     public int Id { get; set; }
+    [StringLength(100)]
     public string VIN { get; set; }
+    [StringLength(1000)]
     public string SourceURL { get; set; }
+    [StringLength(1000)]
     public string SizedURL { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }
