@@ -5,8 +5,15 @@
       "name": "myQueueItem",
       "type": "queueTrigger",
       "direction": "in",
-      "queueName": "myqueue-items",
-      "connection": ""
+      "queueName": "imageresizequeue",
+      "connection": "clientdatastorage"
+    },
+    {
+      "name": "newImage",
+      "path": "images-to-resize/{blobname}",
+      "type": "blob",        
+      "direction": "out",
+      "connection": "clientdatastorage"
     }
   ]
 }
