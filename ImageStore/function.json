@@ -1,18 +1,11 @@
 {
-  "disabled": true,
+  "disabled": false,
   "bindings": [
     {
       "name": "myQueueItem",
       "type": "queueTrigger",
       "direction": "in",
       "queueName": "imageresizequeue",
-      "connection": "clientdatastorage"
-    },
-    {
-      "name": "outBlob",
-      "path": "images-to-resize/{rand-guid}.jpg",
-      "type": "blob",        
-      "direction": "out",
       "connection": "clientdatastorage"
     }
   ]
