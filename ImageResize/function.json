@@ -21,6 +21,13 @@
       "path": "images-sized/{BlobName}",
       "connection": "clientdatastorage",
       "direction": "out"
+    },
+    {
+      "type": "queue",
+      "name": "myQueueItemOut",
+      "queueName": "imageupdatequeue",
+      "connection": "clientdatastorage",
+      "direction": "out"
     }
   ]
 }

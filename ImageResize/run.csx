@@ -3,7 +3,7 @@ using System;
 using ImageResizer;
 using System.Drawing;
 
-public static void Run(ImageInfo myQueueItem, Stream myInputBlob, string BlobName,  Stream myOutputBlob, TraceWriter log)
+public static void Run(ImageInfo myQueueItem, Stream myInputBlob, string BlobName,  Stream myOutputBlob, ICollector<ImageInfo> myQueueItemOut, TraceWriter log)
 {
     // log.Info($"C# Queue trigger function processed: {myQueueItem}");
 
@@ -13,9 +13,14 @@ public static void Run(ImageInfo myQueueItem, Stream myInputBlob, string BlobNam
     var sizedImg = imageBuilder.Build(
         myInputBlob,
         new ResizeSettings(size.Item1, size.Item2, FitMode.Max, null), false);
-        
+
+    // save new image to blob    
     sizedImg.Save(myOutputBlob, System.Drawing.Imaging.ImageFormat.Jpeg);
 
+    // place message in queue to udpate SQL db
+    // we can add the same one back to a queue because ID and Name are the same
+    myQueueItemOut.Add(myQueueItem); 
+    
 }
 
 public class ImageInfo {
