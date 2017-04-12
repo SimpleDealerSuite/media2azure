@@ -1,12 +1,12 @@
 {
-  "disabled": true,
+  "disabled": false,
   "bindings": [
     {
       "name": "myQueueItem",
       "type": "queueTrigger",
       "direction": "in",
-      "queueName": "myqueue-items",
-      "connection": ""
+      "queueName": "imageresizequeue",
+      "connection": "clientdatastorage"
     }
   ]
 }
