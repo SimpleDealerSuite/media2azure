@@ -62,6 +62,7 @@ public class VehicleImage
     public int Id { get; set; }
     public string VIN { get; set; }
     public string SourceURL { get; set; }
+    public string OriginalURL { get; set; }
     public string SizedURL { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }

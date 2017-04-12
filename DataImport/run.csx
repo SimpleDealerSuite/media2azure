@@ -54,6 +54,8 @@ public class VehicleImage
     [StringLength(1000)]
     public string SourceURL { get; set; }
     [StringLength(1000)]
+    public string OriginalURL { get; set; }    
+    [StringLength(1000)]
     public string SizedURL { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }
