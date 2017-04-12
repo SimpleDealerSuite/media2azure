@@ -11,7 +11,7 @@
     {
       "type": "queue",
       "name": "myQueueItem",
-      "queueName": "imageresizequeue",
+      "queueName": "imagedownloadqueue",
       "connection": "clientdatastorage",
       "direction": "out"
     }

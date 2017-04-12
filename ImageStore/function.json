@@ -5,8 +5,15 @@
       "name": "myQueueItem",
       "type": "queueTrigger",
       "direction": "in",
-      "queueName": "imageresizequeue",
+      "queueName": "imagedownloadqueue",
       "connection": "clientdatastorage"
+    },
+    {
+      "type": "queue",
+      "name": "myQueueItemOut",
+      "queueName": "imageresizequeue",
+      "connection": "clientdatastorage",
+      "direction": "out"
     }
   ]
 }

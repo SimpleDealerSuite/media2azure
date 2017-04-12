@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Bindings.Runtime;
 
-public static async void Run(string myQueueItem, Binder binder, TraceWriter log)
+public static async void Run(string myQueueItem, Binder binder, ICollector<ImageInfo> myQueueItemOut, TraceWriter log)
 {
     // Using a Binder allows us to dynamically change the output filename
 
@@ -49,7 +49,12 @@ public static async void Run(string myQueueItem, Binder binder, TraceWriter log)
         log.Info($"Image {filenameNew} Stored");        
     }
 
-     log.Info($"Done ");
+    // Place message in queue
+    ImageInfo img = new ImageInfo(vi.Id,filenameNew);
+    myQueueItemOut.Add(img); 
+
+    // We are done... 
+    log.Info($"Done ");
 }
 
 public class VehicleImage
@@ -62,5 +67,15 @@ public class VehicleImage
     public DateTime DateModified { get; set; }
 }
 
+public class ImageInfo {
+
+    public ImageInfo(int id, string filename)
+    {
+        this.ImageId = id; 
+        this.BlobName = filename;
+    }
+    public int ImageId { get; set; }
+    public string BlobName { get; set; }
+}
 
 // https://weblogs.asp.net/sfeldman/azure-functions-to-make-audit-queue-and-auditors-happy
