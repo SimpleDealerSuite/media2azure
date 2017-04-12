@@ -9,8 +9,8 @@
       "connection": "clientdatastorage"
     },
     {
-      "name": "newImage",
-      "path": "images-to-resize/{blobname}",
+      "name": "outBlob",
+      "path": "images-to-resize/{rand-guid}.jpg",
       "type": "blob",        
       "direction": "out",
       "connection": "clientdatastorage"
