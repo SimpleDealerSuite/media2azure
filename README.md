@@ -1,3 +1,3 @@
 ### Development In Progress... ###
 ---
-![Architecture Diagram](/static/arch-diagram.png "Architecture Diagram")
+![Architecture Diagram](/static/arch-diagram-v2.2.png "Architecture Diagram")
