@@ -1,0 +1,158 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the function app to create."
+      }
+    },
+    "siteLocation": {
+      "type": "string",
+      "allowedValues": [
+        "Brazil South",
+        "East US",
+        "East US 2",
+        "Central US",
+        "North Central US",
+        "South Central US",
+        "West US",
+        "West US 2"
+      ],
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "sqlHost": {
+      "type": "string",
+      "metadata": {
+        "description": "Hostname of SQL Server to connect to"
+      }
+    },
+    "sqlDB": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the SQL Database"
+      }
+    },
+    "sqlUser": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL Username with read/write access to DB"
+      }
+    },
+    "sqlPass": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL Password for specificed username"
+      }
+    }
+  },
+  "variables": {
+    "lowerSiteName": "[toLower(parameters('appName'))]",
+    "contentShareName": "[variables('lowerSiteName')]",
+    "storageName": "[concat('function', uniqueString(variables('lowerSiteName')))]",
+    "storageuri": "[concat('https://',variables('storageName'),'.blob.core.windows.net/')]",
+    "inventoryConnStr": "[concat('Server=tcp:', parameters('sqlHost'), ',1433;Initial Catalog=', parameters('sqlDB'), ';Persist Security Info=False;User ID=', parameters('sqlUser'), ';Password=',parameters('sqlPass'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
+    "repoUrl": "https://github.com/SimpleDealerSuite/media2azure",
+    "branch": "master"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-03-01",
+      "name": "[variables('lowerSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "properties": {
+        "name": "[variables('lowerSiteName')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[variables('contentShareName')]"
+            },
+            {
+              "name": "ROUTING_EXTENSION_VERSION",
+              "value": "~0.2"
+            },
+            {
+              "name": "clientdatastorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "storageuri",
+              "value": "[variables('storageuri')]"
+            }
+          ],
+          "connectionStrings": [
+            {
+              "name": "InventoryContext",
+              "connectionString": "[variables('inventoryConnStr')]",
+              "type": 2 /*SQL*/
+            }
+          ]
+        },
+        "clientAffinityEnabled": false
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('lowerSiteName'))]"
+          ],
+          "properties": {
+            "RepoUrl": "[variables('repoURL')]",
+            "branch": "[variables('branch')]",
+            "IsManualIntegration": true
+          }
+        }
+      ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ],
+      "location": "[parameters('siteLocation')]",
+      "kind": "functionapp"
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageName')]",
+      "location": "[parameters('siteLocation')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Storage/storageAccounts/providers/locks",
+          "name": "[concat(variables('storageName'), '/Microsoft.Authorization/', variables('storageName'))]",
+          "apiVersion": "2015-01-01",
+          "dependsOn": [
+            "[concat('Microsoft.Storage/storageAccounts/', variables('storageName'))]"
+          ],
+          "properties": {
+            "level": "CannotDelete",
+            "notes": "One or more function apps were linked to this storage account. You can see all the function apps linked to the account under 'files' or 'shares'."
+          }
+        }
+      ]
+    }
+
+  ],
+  "outputs": {}
+}
